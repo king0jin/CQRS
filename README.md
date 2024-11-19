@@ -9,13 +9,13 @@
 
 
 ## 데이터 쓰기 작업 : write
-1. 프로젝트와 애플리케이션 생성하기
+### 1. 프로젝트와 애플리케이션 생성하기
 **django-admin startproject 프로젝트이름 경로**
 
 
 **python manage.py startapp 애플리케이션이름**
 
-2. 프로젝트 설정 : settings.py
+### 2. 프로젝트 설정 : settings.py
 + INSTALLED_APPS
   + 사용할 패키지와 애플리케이션 기재
 + DATABASE
@@ -23,7 +23,7 @@
 + TIME_ZONE
   + Asia/Seoul로 변경
  
-3. 요청 URL과 처리 함수
+### 3. 요청 URL과 처리 함수
 + 요청 URL : urls.py
 + 처리함수 : views.py
 + 프로젝트 하나의 urls.py에 URL을 정의하면 관리하기 어려움으로 애플리케이션 별로 urls.py를 생성하여 해당 애플리케이션 관련 URL을 관리, 수정 할 수 있다.

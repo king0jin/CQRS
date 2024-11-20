@@ -58,7 +58,7 @@ function PostBook(props) {
         book.published_date = published_date
         book.description = description
         
-        props.add(book)
+        props.post(book)
 
         setTitle("")
         setAuthor("")

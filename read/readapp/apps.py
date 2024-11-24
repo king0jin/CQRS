@@ -1,8 +1,15 @@
 #데이터 동기화를 위한 Kafka연결
+import sys
+import six
+#Python 3.12 환경에서도 kafka-python 작동
+if sys.version_info >= (3, 12, 0):
+    sys.modules['kafka.vendor.six.moves'] = six.moves
+
 from kafka import KafkaConsumer
 import threading
 import json
 
+from django.core.management import call_command
 from django.apps import AppConfig
 import pymysql
 from pymongo import MongoClient
@@ -12,35 +19,35 @@ from datetime import datetime
 class MessageConsumer:
     def __init__(self, broker, topic):
         self.broker = broker
+        self.topic = topic
         self.consumer = KafkaConsumer(
             topic,
             bootstrap_servers=self.broker,
-            value_deserializer=lambda x: x.decode(
-                "utf-8"
-            ),
+            value_deserializer=lambda x: json.loads(x.decode("utf-8")),
             group_id="jini", # Consumer group ID
             auto_offset_reset="earliest", # Start consuming from earliest available message
             enable_auto_commit=True, # Commit offsets automatically
         )
     #메세지를 수신하는 메서드 
     def receive_message(self):
+
+        #MongoDB에 연결
+        conn = MongoClient("127.0.0.1", '27017')
+        db = conn.cqrs
+        #컬렉션 설정
+        collect = db.books
         try:
             for message in self.consumer:
                 result = json.loads(message.value)
-                imsi = result["data"]
-                doc = {'bid':imsi["bid"], 'title':imsi["title"],
-                'author':imsi["author"], 'category':imsi["category"],
-                'pages':imsi["pages"], 'price':imsi["price"],
-                'published_date':imsi["published_date"],
-                'description':imsi["description"]}
-                #MongoDB에 연결
-                conn = MongoClient('127.0.0.1')
-                db = conn.cqrs
-                #컬렉션 설정
-                collect = db.books
+                row = result["data"]
+                doc = {'bid':row["bid"], 'title':row["title"],
+                'author':row["author"], 'category':row["category"],
+                'pages':row["pages"], 'price':row["price"],
+                'published_date':row["published_date"],
+                'description':row["description"]}
                 #데이터 삽입
                 collect.insert_one(doc)
-                print(doc)
+                print("MongoDB 삽입 성공")
                 #연결종료
                 conn.close()
         except Exception as exc:
@@ -49,6 +56,15 @@ class MessageConsumer:
 class ReadappConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'readapp'
+    #메세지 수신자 
+    broker = ["localhost:9092"]
+    topic = "cqrswritetopic"
+    consumer = MessageConsumer(broker, topic)
+    #스레드로 메서드 호출
+    t = threading.Thread(target=consumer.receive_message)
+    print(t)
+    t.start()
+    
     #test : 앱을 시작하자마자 한 번만 읽기 작업 수행
     def ready(self):
         print("앱을 시작하였습니다.")
@@ -105,10 +121,5 @@ class ReadappConfig(AppConfig):
         #5. MongoDB연결 종료
         con.close()
 
-        #메세지 수신자 
-        broker = ["localhost:9092"]
-        topic = "cqrstopic"
-        consumer = MessageConsumer(broker, topic)
-        #스레드로 메서드 호출
-        t = threading.Thread(target=consumer.receive_message)
-        t.start()
+        #마이그레이션을 적용
+        call_command('migrate')

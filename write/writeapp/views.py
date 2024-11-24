@@ -1,8 +1,10 @@
 #데이터 동기화를 위한 Kafka연결
 import sys
 import six
+#Python 3.12 환경에서도 kafka-python 작동
 if sys.version_info >= (3, 12, 0):
-   		sys.modules["kafka.vendor.six.moves"] = six.moves
+    sys.modules['kafka.vendor.six.moves'] = six.moves
+      
 from kafka import KafkaProducer
 import json
 
@@ -41,6 +43,7 @@ class MessageProducer:
             future.get(timeout=2)
             return {"status_code": 200, "error": None}
         except Exception as exc:
+            print(f"Kafka message send error: {exc}")
             raise exc
 
 # Create your views here.

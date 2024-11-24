@@ -113,7 +113,7 @@ manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
 ![image](https://github.com/user-attachments/assets/ed6ebc00-3471-4f3a-9af5-2547dac2b4cd)
 
 
-+ 데이터베이스에서도 삽입이 되었는지 확인
++ 데이터베이스에 삽입이 되었는지 확인
 
 
 ![image](https://github.com/user-attachments/assets/731d1d71-bd34-4bf7-8f74-eca13fb195fa)
@@ -194,4 +194,33 @@ manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
 
 
 + MongoDB데이터베이스에 저장되어 있는 데이터를 전달 받아 APIview로 확인 
+---
+## Client Apllication 수정
+1. 화면이 렌더링된 이후에 바로 수행될 함수 추가 : useEffect()
+2. 데이터베이스를 읽어서 화면에 title만 출
+### 실행
+manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
++ write : **python manage.py runserver 127.0.0.1:8000**
++ read : **python manage.py runserver 127.0.0.1:8080**
++ client : **yarn start**
 
+
+![스크린샷 2024-11-24 123708](https://github.com/user-attachments/assets/48dec320-69c5-4045-b539-2c6e8582eac9)
+
+#### 데이터 삽입 수행
+![스크린샷 2024-11-24 123812](https://github.com/user-attachments/assets/0e3b126f-794e-445d-b943-e7f9f96f3dc8)
+![스크린샷 2024-11-24 123826](https://github.com/user-attachments/assets/6baf1264-006b-46bf-ac9d-aca900f9429e)
+
+
++ 쓰기전용 데이터베이스에 삽입이 되었는지 확인
+![스크린샷 2024-11-24 123846](https://github.com/user-attachments/assets/35853e33-195d-42ed-95ab-e72f88684095)
+
++ 읽기전용 데이터베이스에도 데이터가 복사되었는지 확인
+![image](https://github.com/user-attachments/assets/796ac5f2-ddee-4212-9ec1-7170531ffe88)
+  + 복사가 되지 않았다
+  + 화면을 새로 고침하여도 새로 추가된 데이터는 화면에 title이 출력됮 않는다 
+![스크린샷 2024-11-24 123708](https://github.com/user-attachments/assets/99436340-4e05-40a5-9286-6009413ce3d0)
+
+
+**서버를 데이터 사용 용도에 따라 분리 시켜서 구현하고 저장소도 분리를 시켜 구현하는 것을 Polyglot하다고 할 수 있다**
++ **CQRS로 구현한 것은 맞으나 데이터 동기화가 이루어 지지 않은 상태이다**

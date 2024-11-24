@@ -32,7 +32,7 @@ class MessageConsumer:
     def receive_message(self):
 
         #MongoDB에 연결
-        conn = MongoClient("127.0.0.1", '27017')
+        conn = MongoClient("127.0.0.1", 27017)
         db = conn.cqrs
         #컬렉션 설정
         collect = db.books

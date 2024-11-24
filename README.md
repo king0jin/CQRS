@@ -41,5 +41,157 @@ manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
 
 ![image](https://github.com/user-attachments/assets/62856108-243d-40b9-947f-a77e9e5af57f)
 
+
+### 4. 데이터 저장을 위한 모델(테이블)생성 : models.py
+데이터베이스에 변경 사항이 있는 경우 데이터베이스 설정을 다시 해달라고 요청해야 적용이 된다.
+1. python manage.py migrations 테이블이름
+  + python manage.py makemigrations **writeapp**
+2. python manage.py migrate
++ 내가 설정한 테이블이름으로 **테이블이름_모델명**으로 데이터베이스에 테이블이 생성된다
+  + **writeapp_모델명**
+#### 모델의 데이터를 JSON형식 문자열로 변환하여 출력해주는 Serializers(직렬화)생성
+
+
+### 5. POST요청 
+#### POST요청을 위한 URL작성 : urls.py
+#### POST요청 처리 함수 생성 : views.py
+서버를 실행하면 APIview화면을 볼 수 있다
+
+
+![image](https://github.com/user-attachments/assets/f5b93caf-963d-4a5a-8220-f1af669446fa)
+![image](https://github.com/user-attachments/assets/028b40f3-f801-4540-a78d-30b5391e102d)
+
+
++ content영역에 JSON형식으로 POST요청할 데이터를 작성하고 POST요청 버튼을 클릭
+
+
+![image](https://github.com/user-attachments/assets/3103de84-44f4-4c29-9fba-42433924c95f)
+
+
++ APIview로 POST요청 응답메세지를 확인
++ POST요청이 성공적으로 완료되면 데이터베이스에서도 삽입이 되었는지 확인
+
+
+![image](https://github.com/user-attachments/assets/031f1510-3df3-46bb-a9e4-fc5a5b20c4b6)
+
+
++ 내가 POST요청한 데이터가 성공적으로 데이터베이스에 삽입 되었다 
 ---
+## Client Apllication
+#### 1. react Project 생성 : **yarn create react-app cqrsclient**
+#### 2. react Application 실행 : **yarn start**
+#### 3. React 프로젝트에서 아이콘 사용을 위한 패키지 설치
+  + **npm install --save --legacy-peer-deps @material-ui/core**
+  + **npm install --save --legacy-peer-deps @material-ui/icons**
+#### 4. 비동기 데이터 요청을 쉽게 작성하기 위한 패키지 설치
+  + **yarn add axios**
+
+### 사용자가 데이터 삽입 수행하기 위한 컴포넌트 생성 : src/AddBook.jsx
++ 기능을 독립적으로 관리하기 위해 기능별로 jsx파일을 생성
+### AddBook.jsx컴포넌트를 화면에 출력 : App.js
++ import로 jsx파일들을 연결하여 jsx파일에 생성한 컴포넌트를 HTML형식으로 화면에 렌더링한다
+
+
+#### 5. server(Django-write)와 client(react)실행
+![image](https://github.com/user-attachments/assets/64d7fb9e-d3b2-4ac1-8ac7-26be5c1dbe65)
+![image](https://github.com/user-attachments/assets/c6f4979a-3933-4f63-ad55-a0b0c55f5855)
+
+
++ 화면으로 데이터를 삽입하려고하면 CORS에러가 발생한다
+  + 기본적으로 웹 브라우저는 보안을 위해 동일 출처 정책(Same-Origin Policy)을 적용하기 때문이다
+  + 서버 : 헤더에 어떤 출처가 요청을 할 수 있는지 허용할지를 명시가 가능하다
+### CORS에러 해결 : write 디렉토리
+1. 가상환경으로 전환하여 **django-cors-headers**패키지 설치
+2. settings.py 수정
+   + INSTALLES_APPS : corsheaders 추가
+   + MIDDLEWARE 제일 상단 : corsheaders.middleware.CorsMiddleware 추가
+   + 빈 곳에 CORS_ORIGIN_WHITELIST = ['허용할 URL',,,] 추가
+   + 빈 곳에 CORS_ALLOW_CREDENTIALS = True 추가
+3. server만 재실행하여 화면에서 삽입 수행
+
+
+![image](https://github.com/user-attachments/assets/ed6ebc00-3471-4f3a-9af5-2547dac2b4cd)
+
+
++ 데이터베이스에서도 삽입이 되었는지 확인
+
+
+![image](https://github.com/user-attachments/assets/731d1d71-bd34-4bf7-8f74-eca13fb195fa)
+
+---
+## Client용 Application생성을 위한 가상 환경
+Application을 시작할 때 관계형 데이터베이스의 모든 데이터를 복사하여 MongoDB로 저장하고 클라이언트 요펑이 오면 MongoDB데이터베이스로 부터 데이터를 전달받는다
+### 가상화를 생성하고 활성화한다
++ 필요한 패키지를 설치한다 
+
+
+**pip install django djangorestframework mysql django-cors-headers pymongo**
+
 ## 데이터 읽기 작업 : read
+### 1. 프로젝트와 애플리케이션 생성하기
+**django-admin startproject 프로젝트이름 경로**
+
+
+**python manage.py startapp 애플리케이션이름**
+
+### 2. 프로젝트 설정 : settings.py
++ INSTALLED_APPS
+  + 사용할 패키지와 애플리케이션 기재
++  MIDDLEWARE
+  + MIDDLEWARE 제일 상단 : corsheaders.middleware.CorsMiddleware 추가
++ 빈 곳에 CORS_ORIGIN_WHITELIST = ['허용할 URL',,,] 추가
++ 빈 곳에 CORS_ALLOW_CREDENTIALS = True 추가
+
+### 3. Apllicaiton을 수행할 때 딱 한 번만 읽기 작업 수행 : apps.py - read()
++ settings.py : INSTALLED_APPS 추가 설정
+  + **readapp.apps.ReadappConfig**
+
+### 실행
+manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
+
+
+**python manage.py runserver IP주소:포트번호**
++ 위 실행 명령을 수행하면 consol로 read()의 내용이 실행되었는지 확인할 수 있다 
+
+
+![image](https://github.com/user-attachments/assets/3e694172-9e50-4e5d-bf1f-eae93668237c)
+
++ server 연결 확인 : 브라우저로 확인
+
+
+![image](https://github.com/user-attachments/assets/a8c8ec5b-f903-4b96-9654-515898f70e27)
+
+
+### 4. Application을 시작할 때 관계형 데이터베이스의 모든 데이터를 복사하여 MongoDB로 저장 : apps.py - read() 수정
+1. 관계형 데이터베이스 연결
+2. MongoDB 데이터베이스 연결
+3. MongoDB 데이터베이스, 컬렉션 설정
+4. 관겨형 데이터베이스 데이터 복사 준비
+5. 관겨형 데이터베이스 데이터 복사하여 튜블로 생성
+6. 튜플로 복사한 데이터 MongoDB데이터베이스 컬렉션에 복사
+7. 연결 종료
+
+### 실행
+manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행하고 MongoDB Compass로 확인
+
+
+![image](https://github.com/user-attachments/assets/d81186d8-a124-476c-9a97-3640bde6af2c)
+
+
+### 5. 요청 URL과 처리 함수
++ 요청 URL : urls.py
++ 처리함수 : views.py
+  + MongoDB데이터베이스로 부터 데이터를 전달받기 위하여 **MongoDB데이터베이스 연결, 데이터베이스 설정, 컬렉션 설정**
+
+### 실행
+manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
+
+
+**python manage.py runserver IP주소:포트번호**
+
+
+![image](https://github.com/user-attachments/assets/732aeacc-3e00-4976-91cd-8a0ad7fbdd34)
+
+
++ MongoDB데이터베이스에 저장되어 있는 데이터를 전달 받아 APIview로 확인 
+

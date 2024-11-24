@@ -9,18 +9,19 @@ function App() {
   const [items, setItems] = useState([]);
   //데이터 동기화를 하기위한 상태 생성
   const [data, setData] = useState(0);
+  const [error, setError] = useState("");
 
   //화면이 출력되자마자 수행될 함수 : 데이터 가져오기 (MongoDB 기준)
   useEffect(() => {
     console.log("렌더링 후 바로 수행 : componentDidMount()");
-    Axios.get("http://127.0.0.1:8000/cqrs/books/").then((response) => {
+    Axios.get("http://127.0.0.1:7000/cqrs/books/").then((response) => {
       //console.log(response.data)
       if (response.data) {
         setItems(response.data)
       } else {
-        alert("Failed Read");
+        setError("Failed Read");
       }
-    });
+    }).catch(() => setError("서버와 통신 중 문제가 발생했습니다.1"));
   }, [data]); //data가 변경된 경우에 동작
 
    //데이터 추가를 위한 함수
@@ -35,12 +36,13 @@ function App() {
         } else {
           alert("정보를 저장하는데 실패했습니다.");
         }
-      });
+      }).catch(() => setError("서버와 통신 중 문제가 발생했습니다.2"));
     };
 
   return (
     <div className="App">
-       <Paper style={{ margin: 16 }}>
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      <Paper style={{ margin: 16 }}>
         <PostBook post = {post}/>
       </Paper> 
       {items.map((item) => (

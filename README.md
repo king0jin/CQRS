@@ -200,8 +200,8 @@ manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
 2. 데이터베이스를 읽어서 화면에 title만 출
 ### 실행
 manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
-+ write : **python manage.py runserver 127.0.0.1:8000**
-+ read : **python manage.py runserver 127.0.0.1:8080**
++ write : **python manage.py runserver 127.0.0.1:8080**
++ read : **python manage.py runserver 127.0.0.1:7000**
 + client : **yarn start**
 
 

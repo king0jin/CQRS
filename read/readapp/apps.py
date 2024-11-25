@@ -30,12 +30,6 @@ class MessageConsumer:
         )
     #메세지를 수신하는 메서드 
     def receive_message(self):
-
-        #MongoDB에 연결
-        conn = MongoClient("127.0.0.1", 27017)
-        db = conn.cqrs
-        #컬렉션 설정
-        collect = db.books
         try:
             for message in self.consumer:
                 result = json.loads(message.value)
@@ -45,6 +39,10 @@ class MessageConsumer:
                 'pages':row["pages"], 'price':row["price"],
                 'published_date':row["published_date"],
                 'description':row["description"]}
+                #MongoDB에 연결
+                conn = MongoClient('127.0.0.1')
+                db = conn.cqrs
+                collect = db.books
                 #데이터 삽입
                 collect.insert_one(doc)
                 print("MongoDB 삽입 성공")
@@ -56,15 +54,6 @@ class MessageConsumer:
 class ReadappConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'readapp'
-    #메세지 수신자 
-    broker = ["localhost:9092"]
-    topic = "cqrswritetopic"
-    consumer = MessageConsumer(broker, topic)
-    #스레드로 메서드 호출
-    t = threading.Thread(target=consumer.receive_message)
-    print(t)
-    t.start()
-    
     #test : 앱을 시작하자마자 한 번만 읽기 작업 수행
     def ready(self):
         print("앱을 시작하였습니다.")
@@ -123,3 +112,11 @@ class ReadappConfig(AppConfig):
 
         #마이그레이션을 적용
         call_command('migrate')
+        #메세지 수신자 
+        broker = ["localhost:9092"]
+        topic = "cqrswritetopic"
+        consumer = MessageConsumer(broker, topic)
+        #스레드로 메서드 호출
+        t = threading.Thread(target=consumer.receive_message)
+        print(t)
+        t.start()

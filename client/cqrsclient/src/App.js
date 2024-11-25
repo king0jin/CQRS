@@ -32,7 +32,7 @@ function App() {
         if (response.data.bid) {
           alert("정보를 저장하는데 성공했습니다.")
           //데이터 추가 성공시, 상태를 변경해서 화면 재출력 
-          setData(prev => prev + 1);
+          setData(1)
         } else {
           alert("정보를 저장하는데 실패했습니다.");
         }

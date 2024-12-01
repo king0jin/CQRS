@@ -7,7 +7,6 @@ import Axios from "axios";
 function App() {
   //상태를 생성 -> 변수, 접근자 함수 생성
   const [items, setItems] = useState([]);
-  //데이터 동기화를 하기위한 상태 생성
   const [error, setError] = useState("");
 
   //화면이 출력되자마자 수행될 함수 : 데이터 가져오기 (MongoDB 기준)
@@ -20,7 +19,7 @@ function App() {
       } else {
         setError("Failed Read");
       }
-    }).catch(() => setError("서버와 통신 중 문제가 발생했습니다.1"));
+    }).catch(() => setError("서버와 통신 중 문제가 발생했습니다."));
   }, []); //data가 변경된 경우에 동작
 
    //데이터 추가를 위한 함수

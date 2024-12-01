@@ -142,7 +142,7 @@ Application을 시작할 때 관계형 데이터베이스의 모든 데이터를
 + 빈 곳에 CORS_ORIGIN_WHITELIST = ['허용할 URL',,,] 추가
 + 빈 곳에 CORS_ALLOW_CREDENTIALS = True 추가
 
-### 3. Apllicaiton을 수행할 때 딱 한 번만 읽기 작업 수행 : apps.py - read()
+### 3. Apllicaiton을 수행할 때 딱 한 번만 읽기 작업 수행 : apps.py - ReadappConfig클래스 : read()
 + settings.py : INSTALLED_APPS 추가 설정
   + **readapp.apps.ReadappConfig**
 
@@ -162,7 +162,9 @@ manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
 ![image](https://github.com/user-attachments/assets/a8c8ec5b-f903-4b96-9654-515898f70e27)
 
 
-### 4. Application을 시작할 때 관계형 데이터베이스의 모든 데이터를 복사하여 MongoDB로 저장 : apps.py - read() 수정
+### 4. Application을 시작할 때 관계형 데이터베이스의 모든 데이터를 복사하여 MongoDB로 저장 : apps.py
+### read()에 sync_mysql_to_mongo()포함
+#### sync_mysql_to_mongo() 생성
 1. 관계형 데이터베이스 연결
 2. MongoDB 데이터베이스 연결
 3. MongoDB 데이터베이스, 컬렉션 설정
@@ -197,7 +199,7 @@ manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
 ---
 ## Client Apllication 수정
 1. 화면이 렌더링된 이후에 바로 수행될 함수 추가 : useEffect()
-2. 데이터베이스를 읽어서 화면에 title만 출
+2. 데이터베이스를 읽어서 화면에 title, page, price 출력 
 ### 실행
 manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
 + write : **python manage.py runserver 127.0.0.1:8080**
@@ -229,16 +231,24 @@ manage.py파일이 있는 디렉토리 위치에서 실행 명령 수행
 데이터 삽입할 때 Kafka로 topic을 전달하도록 수정 : views.py
 1. write 디렉토리 가상환경 활성화하여 패키지 설치
    + **pip install kafka-python**
+2. Python 3.12 환경에서도 kafka-python이 작동할 수 있도록 설정
+3. MessageProducer클래스 생성 : send_message()
   
 ## read 프로젝트 Kafka연결
+데이터 출력할 때 Kafka의 topic을 수신하도록 수정 : apps.py
 + topic을 수신하는 쪽은 백그라운드에서 계속 대기중이어야한다
   + 비동기적으로 백그라운드에서 계속 수행 중이어야 한다
-
-
-데이터 삽입할 때 Kafka로 topic을 전달하도록 수정 : apps.py
 1. read 디렉토리 가상환경 활성화하여 패키지 설치
    + **pip install kafka-python**
+2. Python 3.12 환경에서도 kafka-python이 작동할 수 있도록 설정
+3. MessageConsumer클래스 생성 : receive_message()
 
 ## client 프로젝트 Kafka연결
 + 사용자가 데이터 삽입을 수행하면 새로 추가된 데이터를 자동으로 화면에 출력하도록 설정 : App.js
-  + 상태를 생성하여 사용자가 데이터 삽입을 할 시 상태변화를 줌으로써 상태 변화를 감지하여 데이터를 다시 불러오도록 수정 
+1. const [items, setItems] = useState([]); : 상태를 생성하여 사용자가 데이터 삽입을 할 시 상태변화를 줌으로써 상태 변화를 감지하여 데이터를 다시 불러오도록 수정
+2. useEffect 훅 : 컴포넌트가 처음 렌더링될 때 한 번만 실행
+   + [] 빈 배열을 의존성 배열로 전달하면 첫 렌더링 후에만 실행
+3. Axios.get() : 서버에서 책 목록을 불러옴 
+4. Axios.post() : 새로운 책 데이터를 서버에 추가
+   + 서버에서 응답으로 bid가 있으면 setItems()를 사용해 items 배열에 새 책 데이터를 추가하여 화면에 반영
+6. PostBook 컴포넌트를 렌더링 : post 함수(책 추가 함수)를 props로 전달

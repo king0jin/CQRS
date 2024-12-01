@@ -6,6 +6,12 @@ from pymongo import MongoClient
 from bson import json_util
 import json
 
+import sys
+import six
+if sys.version_info >= (3, 12, 0):
+    sys.modules['kafka.vendor.six.moves'] = six.moves
+from kafka import KafkaConsumer
+
 # Create your views here.
 @api_view(['GET'])
 def bookAPI(request):

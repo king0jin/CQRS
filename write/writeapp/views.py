@@ -6,6 +6,7 @@ if sys.version_info >= (3, 12, 0):
     sys.modules['kafka.vendor.six.moves'] = six.moves
       
 from kafka import KafkaProducer
+from kafka.errors import KafkaTimeoutError, KafkaError
 import json
 
 from django.shortcuts import render
@@ -17,7 +18,7 @@ from .models import Book
 from .serializers import BookSerializer
 from rest_framework import status
 
-#Kafka : 메세지전송 - MessageProducer클래스 생성
+#Kafka : 메세지송신 - MessageProducer클래스 생성
 class MessageProducer:
     #초기화 메서드
     def __init__(self, broker, topic):
@@ -27,10 +28,11 @@ class MessageProducer:
         self.producer = KafkaProducer(
             bootstrap_servers=self.broker,
             value_serializer=lambda x: json.dumps(x).encode("utf-8"),
-            acks=0,
+            acks='all',
             api_version=(2, 5, 0),
             key_serializer=str.encode,
-            retries=3,
+            retries=5,
+            max_in_flight_requests_per_connection=5,
         )
     #메세지를 전송하는 메서드 
     def send_message(self, msg, auto_close=True):
@@ -42,9 +44,15 @@ class MessageProducer:
                 self.producer.close()
             future.get(timeout=2)
             return {"status_code": 200, "error": None}
+        except KafkaTimeoutError as e:
+            print(f"KafkaTimeoutError: {e}")
+            return {"status_code": 408, "error": "Request Timeout"}
+        except KafkaError as e:
+            print(f"KafkaError: {e}")
+            return {"status_code": 500, "error": "Kafka Error"}
         except Exception as exc:
-            print(f"Kafka message send error: {exc}")
-            raise exc
+            print(f"Unexpected error: {exc}")
+            raise
 
 # Create your views here.
 @api_view(['GET'])
@@ -54,10 +62,13 @@ def helloAPI(request):
 #CQRS - 삽입요청
 @api_view(['POST'])
 def bookAPI(request):
-    #요청받은 데이터
-    data = request.data
-    data['pages'] = int(data['pages'])
-    data['price'] = int(data['price'])
+    try:
+        #요청받은 데이터
+        data = request.data
+        data['pages'] = int(data['pages'])
+        data['price'] = int(data['price'])
+    except ValueError:
+        return Response({"error": "Invalid data format"}, status=status.HTTP_400_BAD_REQUEST)
     #데이터 직렬화 
     serializer = BookSerializer(data=data)
     #직렬화를 한 데이터가 유효한 값이라면

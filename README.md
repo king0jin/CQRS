@@ -1,4 +1,4 @@
-# CQRS
+# CQRS_Django
 
 ## Server용 Application생성을 위한 가상 환경
 ### 가상화를 생성하고 활성화한다
